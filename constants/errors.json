@@ -1,0 +1,22 @@
+{
+  "FEW_ARGUMENTS": {
+    "id": 0,
+    "detail": "Few Arguments"
+  },
+  "EMAIL_ALREADY_REGISTRED": {
+    "id": 2, 
+    "detail": "This email has already been registered"
+  },
+  "UNREGISTRED_ACCOUNT": {
+    "id": 5, 
+    "detail": "Unregistered account"
+  },
+  "INVALID_PASSWORD": {
+    "id": 6, 
+    "detail": "Invalid Password"
+  },
+  "INVALID_FORMAT": {  
+    "id": 7, 
+    "detail": "Invalid Format"
+  }
+}
