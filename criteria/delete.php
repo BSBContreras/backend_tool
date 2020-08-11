@@ -4,12 +4,12 @@ require_once('CriteriaController.php');
 
 class Delete extends CriteriaController {
 
-  public static function request($criterion) {
+  public static function request($data) {
     try {
-      if(!isset($criterion->id)){
+      if(!isset($data->id)){
         throw new Exception('few arguments');
       }
-      return self::delete($criterion);
+      return self::delete($data->id);
     } catch(Exception $e) {
       self::error($e->getMessage());
     }

@@ -4,22 +4,24 @@ require_once('CriteriaController.php');
 
 class Questions extends CriteriaController {
 
-  public static function request($criterion) {
+  public static function request($data) {
     try {
-      if(!isset($criterion->id)){
+      if(!isset($data->id)){
         throw new Exception('few arguments');
       }
-      return self::questions($criterion)->fetchAll();
+      return self::questions($data->id);
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
   }
 
   public static function response($response) {
+    $questions = $response->fetchAll();
+
     http_response_code(200);
     echo json_encode([
       'status' => 'success',
-      'docs' => $response
+      'docs' => $questions
     ]);
   }
 }

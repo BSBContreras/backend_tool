@@ -18,5 +18,9 @@
   "INVALID_FORMAT": {  
     "id": 7, 
     "detail": "Invalid Format"
+  },
+  "OPERATION_CANCELED": {  
+    "id": 12, 
+    "detail": "Unexpected error or Invalid format, Operation canceled"
   }
 }

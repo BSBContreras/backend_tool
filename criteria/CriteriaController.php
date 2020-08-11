@@ -25,7 +25,7 @@ class CriteriaController extends Connect {
 
   public static function index() {
     try {
-      $sql = 'SELECT `id`, `name` 
+      $sql = 'SELECT `id`, `name`, `detail`
               FROM '.self::$table_name;
     
       $stmt = self::getConnection()->prepare($sql);
@@ -51,7 +51,7 @@ class CriteriaController extends Connect {
       $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
-        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->setFetchMode(PDO::FETCH_OBJ); 
         return $stmt;
       } else {
         throw new Exception('Error to execute query!');
@@ -63,17 +63,18 @@ class CriteriaController extends Connect {
 
   public static function store($criterion) {
     try {
-      $date = date("Y-m-d H:i:s");
 
       $sql = 'INSERT INTO '.self::$table_name.'
-              VALUES (NULL, :name, :date, :date)';
+              (`name`, `detail`) VALUES
+              (:name, :detail)';
     
       $stmt = self::getConnection()->prepare($sql);
       $stmt->bindParam(':name', $criterion->name, PDO::PARAM_STR);
-      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+      $stmt->bindParam(':detail', $criterion->detail, PDO::PARAM_STR);
       
       if($stmt->execute()) {
-        return self::getConnection()->lastInsertId();
+        $criterion->id = self::getConnection()->lastInsertId();
+        return $criterion;
       } else {
         throw new Exception('Error to execute query!');
       }
@@ -82,13 +83,13 @@ class CriteriaController extends Connect {
     }
   }
 
-  public static function delete($criterion) {
+  public static function delete($criterion_id) {
     try {
       $sql = 'DELETE FROM '.self::$table_name.'
-              WHERE '.self::$PK_table.' = :id';
+              WHERE '.self::$PK_table.' = :criterion_id';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':id', $criterion->id, PDO::PARAM_INT);
+      $stmt->bindParam(':criterion_id', $criterion_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
         return null;
@@ -102,16 +103,15 @@ class CriteriaController extends Connect {
 
   public static function update($criterion) {
     try {
-      $date = date("Y-m-d H:i:s");
-
       $sql = 'UPDATE '.self::$table_name.' SET
               `name` = :name,
-              `updated_at` = :date
+              `detail` = :detail
+              `updated_at` = NULL
               WHERE '.self::$PK_table.' = :id';
     
       $stmt = self::getConnection()->prepare($sql);
       $stmt->bindParam(':name', $criterion->name, PDO::PARAM_STR);
-      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+      $stmt->bindParam(':detail', $criterion->detail, PDO::PARAM_STR);
       $stmt->bindParam(':id', $criterion->id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
@@ -146,7 +146,7 @@ class CriteriaController extends Connect {
     }
   }
 
-  public static function questions($criterion) {
+  public static function questions($criterion_id) {
     try {
       $sql = 'SELECT 
               question.`id`,
@@ -167,10 +167,10 @@ class CriteriaController extends Connect {
               WHERE criterion.'.self::$table_three_foreign_pk.' = :criterion_id';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':criterion_id', $criterion->id, PDO::PARAM_INT);
+      $stmt->bindParam(':criterion_id', $criterion_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
-        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->setFetchMode(PDO::FETCH_OBJ); 
         return $stmt;
       } else {
         throw new Exception('Error to execute query!');
