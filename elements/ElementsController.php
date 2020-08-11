@@ -11,7 +11,7 @@ class ElementsController extends Connect {
 
   public static function index() {
     try {
-      $sql = 'SELECT `id`, `name`
+      $sql = 'SELECT `id`, `name`, `detail`
               FROM '.self::$table_name;
     
       $stmt = self::getConnection()->prepare($sql);
@@ -37,7 +37,7 @@ class ElementsController extends Connect {
       $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
-        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->setFetchMode(PDO::FETCH_OBJ); 
         return $stmt;
       } else {
         throw new Exception('Error to execute query!');
@@ -49,17 +49,18 @@ class ElementsController extends Connect {
 
   public static function store($element) {
     try {
-      $date = date("Y-m-d H:i:s");
 
       $sql = 'INSERT INTO '.self::$table_name.'
-              VALUES (NULL, :name, :date, :date)';
+              (`name`, `detail`) VALUES
+              (:name, :detail)';
     
       $stmt = self::getConnection()->prepare($sql);
       $stmt->bindParam(':name', $element->name, PDO::PARAM_STR);
-      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+      $stmt->bindParam(':detail', $element->detail, PDO::PARAM_STR);
       
       if($stmt->execute()) {
-        return self::getConnection()->lastInsertId();
+        $element->id = self::getConnection()->lastInsertId();
+        return $element;
       } else {
         throw new Exception('Error to execute query!');
       }
@@ -68,13 +69,13 @@ class ElementsController extends Connect {
     }
   }
 
-  public static function delete($element) {
+  public static function delete($element_id) {
     try {
       $sql = 'DELETE FROM '.self::$table_name.'
               WHERE '.self::$PK_table.' = :id';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':id', $element->id, PDO::PARAM_INT);
+      $stmt->bindParam(':id', $element_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
         return null;
@@ -88,16 +89,16 @@ class ElementsController extends Connect {
 
   public static function update($element) {
     try {
-      $date = date("Y-m-d H:i:s");
 
       $sql = 'UPDATE '.self::$table_name.' SET
               `name` = :name,
-              `updated_at` = :date
+              `detail` = :detail,
+              `updated_at` = NULL
               WHERE '.self::$PK_table.' = :id';
     
       $stmt = self::getConnection()->prepare($sql);
       $stmt->bindParam(':name', $element->name, PDO::PARAM_STR);
-      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+      $stmt->bindParam(':detail', $element->detail, PDO::PARAM_STR);
       $stmt->bindParam(':id', $element->id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
@@ -132,7 +133,7 @@ class ElementsController extends Connect {
     }
   }
 
-  public static function questions($element) {
+  public static function questions($element_id) {
     try {
       $sql = 'SELECT `id`, `text` 
               FROM '.self::$table_one_foreign.'
@@ -140,10 +141,10 @@ class ElementsController extends Connect {
               OR '.self::$table_two_foreign_id.' = :id';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':id', $element->id, PDO::PARAM_INT);
+      $stmt->bindParam(':id', $element_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
-        $stmt->setFetchMode(PDO::FETCH_ASSOC); 
+        $stmt->setFetchMode(PDO::FETCH_OBJ); 
         return $stmt;
       } else {
         throw new Exception('Error to execute query!');

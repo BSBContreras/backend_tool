@@ -4,12 +4,12 @@ require_once('ElementsController.php');
 
 class Delete extends ElementsController {
 
-  public static function request($element) {
+  public static function request($data) {
     try {
-      if(!isset($element->id)){
+      if(!isset($data->id)){
         throw new Exception('few arguments');
       }
-      return self::delete($element);
+      return self::delete($data->id);
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
