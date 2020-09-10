@@ -24,14 +24,14 @@ class QuestionsController extends Connect {
     }
   }
 
-  public static function show($id) {
+  public static function show($question_id) {
     try {
       $sql = 'SELECT *
               FROM '.self::$table_name.'
-              WHERE '.self::$PK_table.' = :id';
+              WHERE '.self::$PK_table.' = :question_id';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+      $stmt->bindParam(':question_id', $question_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
         $stmt->setFetchMode(PDO::FETCH_OBJ); 
@@ -46,23 +46,20 @@ class QuestionsController extends Connect {
 
   public static function store($question) {
     try {
-      $date = date("Y-m-d H:i:s");
 
-      empty($question->element_1_id) && $question->element_1_id = NULL;
-      empty($question->element_2_id) && $question->element_2_id = NULL;
-
-      $sql = 'INSERT INTO '.self::$table_name.' VALUES
-              (NULL, :text, :criterion_id, :element_1_id, :element_2_id, :date, :date)';
+      $sql = 'INSERT INTO '.self::$table_name.'
+              (`text`, `criterion_id`, `element_1_id`, `element_2_id`) VALUES
+              (:text, :criterion_id, :element_1_id, :element_2_id)';
     
       $stmt = self::getConnection()->prepare($sql);
       $stmt->bindParam(':criterion_id', $question->criterion_id, PDO::PARAM_INT);
       $stmt->bindParam(':element_1_id', $question->element_1_id, PDO::PARAM_INT);
       $stmt->bindParam(':element_2_id', $question->element_2_id, PDO::PARAM_INT);
       $stmt->bindParam(':text', $question->text, PDO::PARAM_STR);
-      $stmt->bindParam(':date', $date, PDO::PARAM_STR);
       
       if($stmt->execute()) {
-        return self::getConnection()->lastInsertId();
+        $question->id = self::getConnection()->lastInsertId();
+        return $question;
       } else {
         throw new Exception('Error to execute query!');
       }
@@ -71,13 +68,13 @@ class QuestionsController extends Connect {
     }
   }
 
-  public static function delete($question) {
+  public static function delete($question_id) {
     try {
       $sql = 'DELETE FROM '.self::$table_name.'
-              WHERE '.self::$PK_table.' = :id';
+              WHERE '.self::$PK_table.' = :question_id';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':id', $question->id, PDO::PARAM_INT);
+      $stmt->bindParam(':question_id', $question_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
         return null;

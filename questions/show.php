@@ -6,34 +6,39 @@ require_once('../elements/ElementsController.php');
 
 class Show extends QuestionsController {
 
-  public static function request($question) {
+  public static function request($data) {
     try {
-      if(!isset($question->id)){
+      if(!isset($data->id)){
         throw new Exception('few arguments');
       }
 
-      $result = self::show($question->id)->fetch();
+      if(!is_numeric($data->id)){
+        self::error([ 'id' => 7, 'detail' => 'Invalid Format' ]);
+      }
 
-      return [
-        'id' => $result->id,
-        'text' => $result->text,
-        'created_at' => $result->created_at,
-        'updated_at' => $result->created_at,
-        'criterion' => CriteriaController::show($result->criterion_id)->fetch(),
-        'element_1' => ElementsController::show($result->element_1_id)->fetch(),
-        'element_1' => ElementsController::show($result->element_2_id)->fetch()
-      ];
-      
+      return self::show($data->id);      
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
   }
 
-  public static function response($response) {
+  public static function response($stmt) {
+    $data = $stmt->fetch();
+
+    $question = [
+      'id' => $data->id,
+      'text' => $data->text,
+      'created_at' => $data->created_at,
+      'updated_at' => $data->created_at,
+      'criterion' => CriteriaController::show($data->criterion_id)->fetch(),
+      'element_1' => ElementsController::show($data->element_1_id)->fetch(),
+      'element_2' => ElementsController::show($data->element_2_id)->fetch()
+    ];
+
     http_response_code(200);
     echo json_encode([
       'status' => 'success',
-      'docs' => $response
+      'docs' => $question
     ]);
   }
 }

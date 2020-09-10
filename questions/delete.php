@@ -4,12 +4,12 @@ require_once('QuestionsController.php');
 
 class Delete extends QuestionsController {
 
-  public static function request($question) {
+  public static function request($data) {
     try {
-      if(!isset($question->id)){
+      if(!isset($data->id)){
         throw new Exception('few arguments');
       }
-      return self::delete($question);
+      return self::delete($data->id);
     } catch(Exception $e) {
       self::error($e->getMessage());
     }

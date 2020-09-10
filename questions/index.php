@@ -8,30 +8,30 @@ class Index extends QuestionsController {
 
   public static function request() {
     try {
-      $response = array();
-      $result = self::index();
-
-      while($row = $result->fetch()) {
-        $response[] = [
-          'id' => $row->id,
-          'text' => $row->text,
-          'criterion' => CriteriaController::show($row->criterion_id)->fetch()['name'],
-          'element_1' => ElementsController::show($row->element_1_id)->fetch()['name'],
-          'element_2' => ElementsController::show($row->element_2_id)->fetch()['name'],
-        ];
-      }
-
-      return $response;
+      return self::index();
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
   }
 
-  public static function response($response) {
+  public static function response($data) {
+
+    $questions = [];
+    
+    while($question = $data->fetch()) {
+      $questions[] = [
+        'id' => $question->id,
+        'text' => $question->text,
+        'criterion' => CriteriaController::show($question->criterion_id)->fetch()->name,
+        'element_1' => ElementsController::show($question->element_1_id)->fetch()->name,
+        'element_2' => ElementsController::show($question->element_2_id)->fetch()->name,
+      ];
+    }
+
     http_response_code(200);
     echo json_encode([
       'status' => 'success',
-      'docs' => $response
+      'docs' => $questions
     ]);
   }
 }
