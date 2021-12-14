@@ -2,14 +2,14 @@
 
 require_once('TasksController.php');
 
-class Pages extends TasksController {
+class PagesUser extends TasksController {
 
   public static function request($data) {
     try {
-      if(!isset($data->task_id)){
+      if(!isset($data->task_id) || !isset($data->evaluator_id)){
         throw new Exception('few arguments');
       }
-      return self::pages($data->task_id);
+      return self::pagesUser($data->task_id, $data->evaluator_id);
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
@@ -28,6 +28,6 @@ class Pages extends TasksController {
 
 $data = json_decode(file_get_contents("php://input"));
 
-Pages::response(Pages::request($data));
+PagesUser::response(PagesUser::request($data));
 
 ?>

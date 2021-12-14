@@ -2,23 +2,21 @@
 
 require_once('TasksController.php');
 
-class Pages extends TasksController {
+class SyncUser extends TasksController {
 
-  public static function request($data) {
+  public static function request($task) {
     try {
-      if(!isset($data->task_id)){
+      if(!isset($task->task_id) || !isset($task->evaluator_id) || !isset($task->pages)){
         throw new Exception('few arguments');
       }
-      return self::pages($data->task_id);
+      return self::syncUser($task);
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
   }
 
-  public static function response($stmt) {
-    $response = $stmt->fetchAll();
-
-    http_response_code(200);
+  public static function response($response) {
+    http_response_code(201);
     echo json_encode([
       'status' => 'success',
       'docs' => $response
@@ -28,6 +26,6 @@ class Pages extends TasksController {
 
 $data = json_decode(file_get_contents("php://input"));
 
-Pages::response(Pages::request($data));
+SyncUser::response(SyncUser::request($data));
 
 ?>

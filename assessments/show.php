@@ -12,13 +12,17 @@ class Show extends AssessmentsController {
         throw new Exception('few arguments');
       }
 
-      return self::show($assessment->id)->fetch();      
+      return self::show($assessment->id);      
     } catch(Exception $e) {
       self::error($e->getMessage());
     }
   }
 
-  public static function response($assessment) {
+  public static function response($stmt) {
+    $assessment = $stmt->fetch();
+
+    $task_size = self::tasks($assessment->id)->count();
+
     $questionnaire = QuestionnairesController::show($assessment->questionnaire_id)->fetch();
     $manager = ManagersController::show($questionnaire->manager_id)->fetch();
 

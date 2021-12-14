@@ -114,6 +114,45 @@ class TasksController extends Connect {
     }
   }
 
+  public static function syncUser($task) {
+    try {
+      // Detaching pages
+      $sql = 'DELETE FROM `_page-task-evaluator`
+              WHERE `task_id` = :task_id
+              AND `evaluator_id` = :evaluator_id';
+
+      $stmt = self::getConnection()->prepare($sql);
+      $stmt->bindParam(':task_id', $task->task_id, PDO::PARAM_INT);
+      $stmt->bindParam(':evaluator_id', $task->evaluator_id, PDO::PARAM_INT);
+
+      if(!$stmt->execute()) {
+        throw new Exception('Error to execute query!');
+      } 
+
+      // Attaching pages
+      $sql = 'INSERT INTO `_page-task-evaluator`
+              (`page_id`, `task_id`, `evaluator_id`, `sort_key`) VALUES
+              (:page_id, :task_id, :evaluator_id, :sort_key)';
+
+      $stmt = self::getConnection()->prepare($sql);
+      foreach($task->pages as $key => $page_id) {
+        $stmt->bindParam(':page_id', $page_id, PDO::PARAM_INT);
+        $stmt->bindParam(':task_id', $task->task_id, PDO::PARAM_INT);
+        $stmt->bindParam(':evaluator_id', $task->evaluator_id, PDO::PARAM_INT);
+        $stmt->bindParam(':sort_key', $key, PDO::PARAM_INT);
+
+        if(!$stmt->execute()) {
+          throw new Exception('Error to execute query!');
+        } 
+      }
+
+      return $task;
+
+    } catch(PDOException $e) {
+      throw new Exception($e->getMessage().' -> '.$sql);
+    }
+  }
+
   public static function delete($task) {
     try {
       $sql = 'DELETE FROM '.self::$table_name.'
@@ -132,12 +171,9 @@ class TasksController extends Connect {
     }
   }
 
-  public static function pages($task) {
+  public static function pages($task_id) {
     try {
-      $sql = 'SELECT 
-                page.id AS id, 
-                page.name AS name, 
-                page.url AS url
+      $sql = 'SELECT *
               FROM '.self::$table_two_foreign.' AS page
               JOIN `'.self::$table_one_foreign.'` page_task
                 ON page_task.'.self::$table_one_foreign_id_2.' = page.id
@@ -145,7 +181,32 @@ class TasksController extends Connect {
               ORDER BY page_task.sort_key';
     
       $stmt = self::getConnection()->prepare($sql);
-      $stmt->bindParam(':id', $task->id, PDO::PARAM_INT);
+      $stmt->bindParam(':id', $task_id, PDO::PARAM_INT);
+
+      if($stmt->execute()) {
+        $stmt->setFetchMode(PDO::FETCH_OBJ);
+        return $stmt;
+      } else {
+        throw new Exception('Error to execute query!');
+      }
+    } catch(PDOException $e) {
+      throw new Exception($e->getMessage().' -> '.$sql);
+    }
+  }
+
+  public static function pagesUser($task_id, $evaluator_id) {
+    try {
+      $sql = 'SELECT *
+              FROM `_pages` AS page
+              JOIN `_page-task-evaluator` AS page_task
+                ON page_task.page_id = page.id
+              WHERE page_task.task_id = :task_id
+              AND page_task.evaluator_id = :evaluator_id
+              ORDER BY page_task.sort_key';
+    
+      $stmt = self::getConnection()->prepare($sql);
+      $stmt->bindParam(':task_id', $task_id, PDO::PARAM_INT);
+      $stmt->bindParam(':evaluator_id', $evaluator_id, PDO::PARAM_INT);
 
       if($stmt->execute()) {
         $stmt->setFetchMode(PDO::FETCH_OBJ);

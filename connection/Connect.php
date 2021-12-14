@@ -6,10 +6,15 @@ header("Access-Control-Allow-Methods: *");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, origin, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-define('SERVERNAME', '10.100.116.219');
-define('USERNAME', 'w86cond_met_pand');
-define('PASSWORD', '#LNz65ul');
-define('DBNAME', 'w86cond_met_pand');
+// define('SERVERNAME', '10.100.116.219');
+// define('USERNAME', 'w86cond_met_pand');
+// define('PASSWORD', '#LNz65ul');
+// define('DBNAME', 'w86cond_met_pand');
+
+define('SERVERNAME', 'joinsoft.com.br');
+define('USERNAME', 'joinsoft_coinspc');
+define('PASSWORD', '7JGFrK58Oolv');
+define('DBNAME', 'join_coinspc');
 
 abstract class Connect {
   private static $connection;
